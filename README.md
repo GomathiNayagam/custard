@@ -1,4 +1,4 @@
-# custard
+# Custard
 🥄 CUSTARD  Community Unobserved States Translation using Annotations of rpoC Data
 
 	- A framework for inferring microbial community functional capabilities using the rpoC marker gene

@@ -1,0 +1,4 @@
+input_dir: "/mnt/d/Research/PDRA/rpocDB/custard/data/fastq"
+output_dir: "/mnt/d/Research/PDRA/rpocDB/custard/results"
+taxa_db: "/mnt/d/Research/PDRA/rpocDB/custard/data/db/rpocDB_v2_dada2_clean.fasta"
+threads: 1

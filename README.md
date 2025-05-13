@@ -1,5 +1,4 @@
-# Custard
-https://github.com/GomathiNayagam/custard/blob/main/props/custard_logo.png
+# ![Custard](props/custard_logo.png)
 
 
 🥄 CUSTARD  Community Unobserved States Translation using Annotations of rpoC Data

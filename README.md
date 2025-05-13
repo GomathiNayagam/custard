@@ -5,7 +5,8 @@
 
 	- A framework for inferring microbial community functional capabilities using the rpoC marker gene
 
-	CUSTARD is a reproducible Snakemake pipeline for processing paired‑end amplicon sequencing reads via the DADA2 workflow, customised to assign taxonomy using an `rpoC`‑based reference database. This is the first module in a two‑stage system; future extensions will predict functional states from representative genome annotations.
+	CUSTARD is a reproducible Snakemake pipeline for processing paired‑end amplicon sequencing reads via the DADA2 workflow, customised to assign taxonomy using an `rpoC`‑based reference database. 
+ This is the first module in a two‑stage system; future extensions will predict functional states from representative genome annotations.
 
 ---
 
@@ -113,5 +114,5 @@ Distributed for academic and research purposes. No warranty provided.
 
 ## ✉️ Contact
 
-For questions or contributions, please contact the pipeline author.  
+For questions or contributions, please contact the sgomathi@uwyo.edu.  
 

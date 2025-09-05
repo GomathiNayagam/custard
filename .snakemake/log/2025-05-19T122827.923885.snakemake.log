@@ -1,0 +1,47 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 20
+Rules claiming more threads will be scaled down.
+Job stats:
+job          count
+---------  -------
+all              1
+run_dada2        1
+total            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon May 19 12:28:27 2025]
+localrule run_dada2:
+    input: /home/sgomathi/CUSTARD/custard/data/fastq, /home/sgomathi/CUSTARD/custard/data/db/dada2_whole_rpoc.fasta
+    output: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+    jobid: 1
+    reason: Updated input files: /home/sgomathi/CUSTARD/custard/data/fastq, /home/sgomathi/CUSTARD/custard/data/db/dada2_whole_rpoc.fasta
+    threads: 20
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file "/home/sgomathi/CUSTARD/custard/Snakefile", line 23:
+Command 'set -euo pipefail;  Rscript --vanilla /home/sgomathi/CUSTARD/custard/.snakemake/scripts/tmpqeetfiwj.run_dada2.R' died with <Signals.SIGKILL: 9>.
+[Mon May 19 12:30:09 2025]
+Error in rule run_dada2:
+    message: None
+    jobid: 1
+    input: /home/sgomathi/CUSTARD/custard/data/fastq, /home/sgomathi/CUSTARD/custard/data/db/dada2_whole_rpoc.fasta
+    output: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+Removing output files of failed job run_dada2 since they might be corrupted:
+results/seqtab.rds
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon May 19 12:30:09 2025]
+Error in rule run_dada2:
+    message: None
+    jobid: 1
+    input: /home/sgomathi/CUSTARD/custard/data/fastq, /home/sgomathi/CUSTARD/custard/data/db/dada2_whole_rpoc.fasta
+    output: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-05-19T122827.923885.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

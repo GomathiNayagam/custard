@@ -1,0 +1,41 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job stats:
+job          count
+---------  -------
+all              1
+infer_kos        1
+total            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Aug 26 16:11:12 2025]
+localrule infer_kos:
+    input: results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt
+    output: results/asv_predicted_kos.tsv
+    jobid: 3
+    reason: Missing output files: results/asv_predicted_kos.tsv
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Aug 26 16:11:37 2025]
+Finished jobid: 3 (Rule: infer_kos)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Aug 26 16:11:37 2025]
+localrule all:
+    input: results/asv_table.tsv, results/asv_sequences.fasta, results/asv_kraken2_taxonomy.tsv, results/asv_predicted_kos.tsv
+    jobid: 0
+    reason: Input files updated by another job: results/asv_predicted_kos.tsv
+    resources: tmpdir=/tmp
+
+[Tue Aug 26 16:11:37 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-08-26T161112.729139.snakemake.log

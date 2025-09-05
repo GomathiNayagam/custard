@@ -1,0 +1,32 @@
+# Directory containing raw FASTQ files
+input_dir: "/home/sgomathi/CUSTARD/custard/data/fastq"
+
+# Output directory
+output_dir: "/home/sgomathi/CUSTARD/custard/results"
+
+# DADA2 formatted database
+taxa_db: "/home/sgomathi/CUSTARD/custard/data/db/dada2_formatted_rpoc_amplicon.fasta"
+
+# Kraken2 database
+kraken_db: "/home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon"
+
+# Threads
+threads: 20
+
+# Default taxonomy assignment method
+method: "kraken2"
+
+# KO inference
+ko_db_fasta: "/home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta"
+ko_npz: "/home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz"
+ko_genomes: "/home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt"
+ko_list: "/home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt"
+identity_threshold: 0.4
+
+# Optional metadata file (set to "none" if not provided)
+metadata: "config/metadata.tsv"
+
+# Paired-end suffixes
+read1_suffix: "_R1.fastq.gz"
+read2_suffix: "_R2.fastq.gz"
+

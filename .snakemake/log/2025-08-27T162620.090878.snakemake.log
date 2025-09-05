@@ -1,0 +1,40 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+taxonomy_barplot        1
+total                   2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Aug 27 16:26:20 2025]
+localrule taxonomy_barplot:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    jobid: 6
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 16:26:21 2025]
+Finished jobid: 6 (Rule: taxonomy_barplot)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Aug 27 16:26:21 2025]
+localrule all:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/alpha_diversity.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/beta_diversity.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/beta_pcoa.png, /home/sgomathi/CUSTARD/custard/results/diversity/rarefaction_curve.png, /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png, /home/sgomathi/CUSTARD/custard/results/ko/ko_pca.png
+    jobid: 0
+    reason: Input files updated by another job: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 16:26:21 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-08-27T162620.090878.snakemake.log

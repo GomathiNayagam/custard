@@ -1,0 +1,44 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+taxonomy_barplot        1
+total                   2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Aug 27 16:24:34 2025]
+localrule taxonomy_barplot:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    jobid: 6
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file "/home/sgomathi/CUSTARD/custard/Snakefile", line 159:
+Command 'set -euo pipefail;  /home/sgomathi/miniconda3/envs/custard/bin/python3.12 /home/sgomathi/CUSTARD/custard/.snakemake/scripts/tmp5omwzzku.taxonomy_barplot.py' returned non-zero exit status 1.
+[Wed Aug 27 16:24:34 2025]
+Error in rule taxonomy_barplot:
+    message: None
+    jobid: 6
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Wed Aug 27 16:24:34 2025]
+Error in rule taxonomy_barplot:
+    message: None
+    jobid: 6
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-08-27T162434.181084.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,3 @@
+ModuleNotFoundError in file /home/sgomathi/CUSTARD/custard/Snakefile, line 1:
+No module named 'pandas'
+  File "/home/sgomathi/CUSTARD/custard/Snakefile", line 1, in <module>

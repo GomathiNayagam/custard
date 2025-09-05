@@ -1,0 +1,41 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 20
+Rules claiming more threads will be scaled down.
+Job stats:
+job          count
+---------  -------
+all              1
+run_dada2        1
+total            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon May 19 17:55:33 2025]
+localrule run_dada2:
+    input: /home/sgomathi/CUSTARD/custard/data/fastq, /home/sgomathi/CUSTARD/custard/data/db/dada2_formatted_rpoc.fasta
+    output: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+    jobid: 1
+    reason: Missing output files: results/taxa_assignments.tsv, results/asv_table.tsv, results/taxa.rds, results/seqtab.rds; Set of input files has changed since last execution
+    threads: 20
+    resources: tmpdir=/tmp
+
+[Mon May 19 18:00:25 2025]
+Finished jobid: 1 (Rule: run_dada2)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon May 19 18:00:25 2025]
+localrule all:
+    input: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+    jobid: 0
+    reason: Input files updated by another job: results/taxa_assignments.tsv, results/asv_table.tsv, results/taxa.rds, results/seqtab.rds
+    resources: tmpdir=/tmp
+
+[Mon May 19 18:00:25 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-05-19T175533.458523.snakemake.log

@@ -1,0 +1,53 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 20
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+kraken2_taxonomy        1
+run_dada2               1
+total                   3
+
+Select jobs to execute...
+
+[Wed Jul 30 11:56:51 2025]
+rule run_dada2:
+    input: /home/sgomathi/CUSTARD/custard/data/fastq
+    output: results/asv_table.tsv, results/seqtab.rds, results/asv_sequences.fasta
+    jobid: 1
+    reason: Missing output files: results/asv_table.tsv, results/asv_sequences.fasta
+    threads: 20
+    resources: tmpdir=/tmp
+
+[Wed Jul 30 11:59:47 2025]
+Finished job 1.
+1 of 3 steps (33%) done
+Select jobs to execute...
+
+[Wed Jul 30 11:59:47 2025]
+rule kraken2_taxonomy:
+    input: results/asv_sequences.fasta
+    output: results/kraken_output.tsv, results/asv_kraken2_taxonomy.tsv, results/kraken_output_raw.tsv
+    jobid: 2
+    reason: Missing output files: results/asv_kraken2_taxonomy.tsv; Input files updated by another job: results/asv_sequences.fasta; Code has changed since last execution
+    threads: 20
+    resources: tmpdir=/tmp
+
+[Wed Jul 30 11:59:47 2025]
+Finished job 2.
+2 of 3 steps (67%) done
+Select jobs to execute...
+
+[Wed Jul 30 11:59:47 2025]
+localrule all:
+    input: results/asv_table.tsv, results/asv_sequences.fasta, results/asv_kraken2_taxonomy.tsv
+    jobid: 0
+    reason: Input files updated by another job: results/asv_table.tsv, results/asv_kraken2_taxonomy.tsv, results/asv_sequences.fasta
+    resources: tmpdir=/tmp
+
+[Wed Jul 30 11:59:47 2025]
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: .snakemake/log/2025-07-30T115651.627541.snakemake.log

@@ -1,0 +1,81 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+all                      1
+infer_kos                1
+ko_pca                   1
+rarefaction_curve        1
+taxonomy_barplot         1
+total                    5
+
+Select jobs to execute...
+Execute 2 jobs...
+[Wed Aug 27 17:17:06 2025]
+localrule taxonomy_barplot:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    jobid: 6
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 17:17:06 2025]
+localrule rarefaction_curve:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/diversity/rarefaction_curve.png
+    jobid: 5
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/diversity/rarefaction_curve.png
+    resources: tmpdir=/tmp
+
+Select jobs to execute...
+[Wed Aug 27 17:17:08 2025]
+Finished jobid: 6 (Rule: taxonomy_barplot)
+1 of 5 steps (20%) done
+[Wed Aug 27 17:17:37 2025]
+Finished jobid: 5 (Rule: rarefaction_curve)
+2 of 5 steps (40%) done
+Execute 1 jobs...
+[Wed Aug 27 17:17:37 2025]
+localrule infer_kos:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt
+    output: /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv
+    jobid: 3
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv
+    threads: 2
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 17:18:26 2025]
+Finished jobid: 3 (Rule: infer_kos)
+3 of 5 steps (60%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Aug 27 17:18:26 2025]
+localrule ko_pca:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv, metadata.tsv
+    output: /home/sgomathi/CUSTARD/custard/results/ko/ko_pca.png
+    jobid: 7
+    reason: Missing output files: /home/sgomathi/CUSTARD/custard/results/ko/ko_pca.png; Input files updated by another job: /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 17:18:43 2025]
+Finished jobid: 7 (Rule: ko_pca)
+4 of 5 steps (80%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Aug 27 17:18:43 2025]
+localrule all:
+    input: /home/sgomathi/CUSTARD/custard/results/asv_table.tsv, /home/sgomathi/CUSTARD/custard/results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/results/asv_kraken2_taxonomy.tsv, /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/alpha_diversity.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/beta_diversity.tsv, /home/sgomathi/CUSTARD/custard/results/diversity/beta_pcoa.png, /home/sgomathi/CUSTARD/custard/results/diversity/rarefaction_curve.png, /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png, /home/sgomathi/CUSTARD/custard/results/ko/ko_pca.png
+    jobid: 0
+    reason: Input files updated by another job: /home/sgomathi/CUSTARD/custard/results/diversity/rarefaction_curve.png, /home/sgomathi/CUSTARD/custard/results/taxonomy/taxonomy_barplot.png, /home/sgomathi/CUSTARD/custard/results/asv_predicted_kos.tsv, /home/sgomathi/CUSTARD/custard/results/ko/ko_pca.png
+    resources: tmpdir=/tmp
+
+[Wed Aug 27 17:18:43 2025]
+Finished jobid: 0 (Rule: all)
+5 of 5 steps (100%) done
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-08-27T171706.305843.snakemake.log

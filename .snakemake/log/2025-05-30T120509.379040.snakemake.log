@@ -1,0 +1,9 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+MissingInputException in rule all in file "/home/sgomathi/CUSTARD/custard/Snakefile", line 3:
+Missing input files for rule all:
+    affected files:
+        results/kraken_output.tsv
+        results/asv_table.tsv

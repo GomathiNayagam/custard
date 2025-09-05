@@ -1,0 +1,41 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+kraken2_taxonomy        1
+total                   2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Fri May 30 12:48:55 2025]
+localrule kraken2_taxonomy:
+    input: results/asv_sequences.fasta
+    output: results/kraken_output.tsv, results/asv_taxonomy.tsv
+    jobid: 2
+    reason: Missing output files: results/asv_taxonomy.tsv, results/kraken_output.tsv; Code has changed since last execution
+    threads: 4
+    resources: tmpdir=/tmp
+
+[Fri May 30 12:48:55 2025]
+Finished jobid: 2 (Rule: kraken2_taxonomy)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Fri May 30 12:48:55 2025]
+localrule all:
+    input: results/asv_table.tsv, results/asv_sequences.fasta, results/kraken_output.tsv, results/asv_taxonomy.tsv
+    jobid: 0
+    reason: Input files updated by another job: results/asv_taxonomy.tsv, results/kraken_output.tsv
+    resources: tmpdir=/tmp
+
+[Fri May 30 12:48:55 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-05-30T124855.046205.snakemake.log

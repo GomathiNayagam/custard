@@ -1,0 +1,56 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job          count
+---------  -------
+all              1
+infer_kos        1
+total            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Aug 26 15:22:41 2025]
+localrule infer_kos:
+    input: results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt
+    output: results/asv_predicted_kos.tsv
+    jobid: 3
+    reason: Missing output files: results/asv_predicted_kos.tsv
+    threads: 2
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file "/home/sgomathi/CUSTARD/custard/Snakefile", line 77:
+Command 'set -euo pipefail;  
+        python scripts/infer_kos.py             --asv_fasta results/asv_sequences.fasta             --ko_fasta /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta             --ko_npz /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz             --ko_genomes /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt             --ko_list /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt             --output results/asv_predicted_kos.tsv             --threads 2             --identity_threshold 0.4' returned non-zero exit status 1.
+[Tue Aug 26 15:22:42 2025]
+Error in rule infer_kos:
+    message: None
+    jobid: 3
+    input: results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt
+    output: results/asv_predicted_kos.tsv
+    shell:
+        
+        python scripts/infer_kos.py             --asv_fasta results/asv_sequences.fasta             --ko_fasta /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta             --ko_npz /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz             --ko_genomes /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt             --ko_list /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt             --output results/asv_predicted_kos.tsv             --threads 2             --identity_threshold 0.4
+        
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Tue Aug 26 15:22:42 2025]
+Error in rule infer_kos:
+    message: None
+    jobid: 3
+    input: results/asv_sequences.fasta, /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt, /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt
+    output: results/asv_predicted_kos.tsv
+    shell:
+        
+        python scripts/infer_kos.py             --asv_fasta results/asv_sequences.fasta             --ko_fasta /home/sgomathi/CUSTARD/custard/data/db/kraken2_amplicons.fasta             --ko_npz /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos.npz             --ko_genomes /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_genomes.txt             --ko_list /home/sgomathi/CUSTARD/custard/data/db/all_genomes_kos_kos.txt             --output results/asv_predicted_kos.tsv             --threads 2             --identity_threshold 0.4
+        
+        (command exited with non-zero exit code)
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-08-26T152241.690784.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

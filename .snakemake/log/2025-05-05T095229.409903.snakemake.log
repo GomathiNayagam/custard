@@ -1,0 +1,10 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+MissingInputException in rule run_dada2 in file "/home/sgomathi/custard/Snakefile", line 12:
+Missing input files for rule run_dada2:
+    output: results/asv_table.tsv, results/taxa_assignments.tsv, results/seqtab.rds, results/taxa.rds
+    affected files:
+        /mnt/d/Research/PDRA/rpocDB/custard/data/fastq
+        /mnt/d/Research/PDRA/rpocDB/custard/data/db/rpocDB_v2_dada2_clean.fasta

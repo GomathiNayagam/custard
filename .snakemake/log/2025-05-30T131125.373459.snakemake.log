@@ -1,0 +1,70 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: moxie.uwyo.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+kraken2_taxonomy        1
+total                   2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Fri May 30 13:11:25 2025]
+localrule kraken2_taxonomy:
+    input: results/asv_sequences.fasta
+    output: results/kraken_output.tsv, results/asv_taxonomy.tsv, results/kraken_output_raw.tsv
+    jobid: 2
+    reason: Missing output files: results/kraken_output.tsv, results/asv_taxonomy.tsv; Code has changed since last execution
+    threads: 4
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file "/home/sgomathi/CUSTARD/custard/Snakefile", line 30:
+Command 'set -euo pipefail;  
+        # Run Kraken2 with report and raw output
+        kraken2 --db /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon                 --threads 4                 --use-names                 --report results/kraken_output.tsv                 --output results/kraken_output_raw.tsv                 --confidence 0.01                 results/asv_sequences.fasta
+
+        # Parse Kraken2 output using Python script
+        python scripts/parse_kraken2_taxonomy.py results/kraken_output_raw.tsv results/asv_taxonomy.tsv /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon' returned non-zero exit status 1.
+[Fri May 30 13:11:25 2025]
+Error in rule kraken2_taxonomy:
+    message: None
+    jobid: 2
+    input: results/asv_sequences.fasta
+    output: results/kraken_output.tsv, results/asv_taxonomy.tsv, results/kraken_output_raw.tsv
+    shell:
+        
+        # Run Kraken2 with report and raw output
+        kraken2 --db /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon                 --threads 4                 --use-names                 --report results/kraken_output.tsv                 --output results/kraken_output_raw.tsv                 --confidence 0.01                 results/asv_sequences.fasta
+
+        # Parse Kraken2 output using Python script
+        python scripts/parse_kraken2_taxonomy.py results/kraken_output_raw.tsv results/asv_taxonomy.tsv /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon
+        
+        (command exited with non-zero exit code)
+Removing output files of failed job kraken2_taxonomy since they might be corrupted:
+results/kraken_output.tsv, results/kraken_output_raw.tsv
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Fri May 30 13:11:25 2025]
+Error in rule kraken2_taxonomy:
+    message: None
+    jobid: 2
+    input: results/asv_sequences.fasta
+    output: results/kraken_output.tsv, results/asv_taxonomy.tsv, results/kraken_output_raw.tsv
+    shell:
+        
+        # Run Kraken2 with report and raw output
+        kraken2 --db /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon                 --threads 4                 --use-names                 --report results/kraken_output.tsv                 --output results/kraken_output_raw.tsv                 --confidence 0.01                 results/asv_sequences.fasta
+
+        # Parse Kraken2 output using Python script
+        python scripts/parse_kraken2_taxonomy.py results/kraken_output_raw.tsv results/asv_taxonomy.tsv /home/sgomathi/CUSTARD/custard/data/db/kraken_amplicon
+        
+        (command exited with non-zero exit code)
+Complete log(s): /home/sgomathi/CUSTARD/custard/.snakemake/log/2025-05-30T131125.373459.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,22 @@
+# Snakemake cache & logs
+.snakemake/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# R cache
+*.Rhistory
+*.RData
+
+# Large database files
+data/db/*.fna
+data/db/*.npz
+data/db/*.k2d
+data/db/*.fasta
+data/db/*.txt
+
+# Ignore files bigger than 100 MB
+# (GitHub blocks >100 MB anyway, so best to ignore all dbs here)
+

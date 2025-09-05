@@ -60,7 +60,7 @@ BiocManager::install(c("dada2", "Biostrings"))
 Run the following commands to set up the environment:
 
 ### Download Database
-Download and unpack the database tar file from Zenodo:
+Download and unpack the database tar file from Zenodo and move the extracted contents into /data/db:
 
 ```bash
 wget https://zenodo.org/records/17065095/files/db.tar.gz?download=1 -O db.tar.gz

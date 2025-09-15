@@ -35,14 +35,14 @@ custard/
 🛠️ Installation  
 **System dependencies (Ubuntu)**  
 ```bash
-sudo apt update && sudo apt install -y     build-essential     r-base     libxml2-dev     libcurl4-openssl-dev     libssl-dev     libfontconfig1-dev     libfreetype6-dev     libpng-dev     libharfbuzz-dev     libfribidi-dev     libtiff5-dev     libjpeg-dev     zlib1g-dev     libbz2-dev     pkg-config
+sudo apt update && sudo apt install -y     build-essential     r-base     libxml2-dev     libcurl4-openssl-dev     libssl-dev     libfontconfig1-dev     libfreetype6-dev     libpng-dev     libharfbuzz-dev     libfribidi-dev     libtiff5-dev     libjpeg-dev     zlib1g-dev     libbz2-dev     pkg-config kraken2
 ```
 
 **Conda environment**  
 ```bash
 conda create -n custard snakemake -c bioconda -c conda-forge
 conda activate custard
-pip install ete3
+pip install ete3 scikit-bio
 ```
 
 **R dependencies**  

@@ -51,8 +51,11 @@ That's it. Results appear in `results/`.
 | `taxonomy/taxonomy_barplot.png` | Side-by-side community composition per sample group |
 | `report.html` | Quality summary — read counts, what was filtered out, and why |
 | `diversity/` | Alpha diversity (richness), beta diversity (PCoA ordination), rarefaction curves |
-| `ko/ko_pca.png` | Functional profile comparison between groups (KEGG pathways) |
-| `asv_predicted_kos.tsv` | Predicted metabolic functions per ASV |
+| `pathway_abundance.tsv` | Per-sample abundance of named KEGG pathways (e.g. "Glycolysis / Gluconeogenesis"), not bare KO IDs |
+| `ko/ko_pca.png` | Functional profile comparison between groups, now run on named pathways |
+| `ko/ko_pca_loadings.tsv` | Which pathways actually drive the separation seen in the PCA plot |
+| `ko/pathway_differential_abundance.tsv` | Ranked, FDR-corrected test of which pathways differ between groups |
+| `asv_predicted_kos.tsv` | Predicted metabolic functions per ASV (raw KO level, feeds the outputs above) |
 
 Open `results/taxonomy/krona.html` in your browser for the best overview of your data.
 
@@ -76,7 +79,8 @@ ASV inference (DADA2)
     +---> Taxonomy: vsearch alignment (species level, 97% identity)
     +---> Taxonomy: Kraken2 (optional k-mer classifier)
     |
-    +---> Functional prediction (KEGG orthologs)
+    +---> Functional prediction: KEGG orthologs -> named pathways,
+    |     PCA with loadings, differential abundance between groups
     |
     +---> Visualizations: Krona sunburst, barplots, PCoA, rarefaction
     |

@@ -127,6 +127,7 @@ _core = [
     f"{config['output_dir']}/asv_sequences.fasta",
     TAXONOMY_OUTPUT,
     f"{config['output_dir']}/asv_predicted_kos.tsv",
+    f"{config['output_dir']}/pathway_abundance.tsv",
     f"{config['output_dir']}/read_tracking_qc.tsv",
     f"{config['output_dir']}/discarded/discarded_reads_taxonomy.tsv",
     f"{config['output_dir']}/asv_vsearch_taxonomy.tsv",
@@ -141,6 +142,8 @@ _diversity = [
     f"{config['output_dir']}/diversity/rarefaction_curve.png",
     f"{config['output_dir']}/taxonomy/taxonomy_barplot.png",
     f"{config['output_dir']}/ko/ko_pca.png",
+    f"{config['output_dir']}/ko/ko_pca_loadings.tsv",
+    f"{config['output_dir']}/ko/pathway_differential_abundance.tsv",
 ]
 
 if METADATA != "none":
@@ -504,6 +507,30 @@ rule infer_kos:
         """
 
 # =============================================================================
+# Rule 7b: Roll per-ASV KO scores up into named KEGG pathways
+# -----------------------------------------------------------------------------
+# asv_predicted_kos.tsv is a matrix of thousands of bare KO IDs — not
+# directly readable. This aggregates it into pathway_abundance.tsv, a much
+# smaller samples x named-pathway table, reused by both the PCA plot and
+# the differential abundance test below.
+# =============================================================================
+rule aggregate_ko_pathways:
+    input:
+        asv_table      = f"{config['output_dir']}/asv_table.tsv",
+        ko_table       = f"{config['output_dir']}/asv_predicted_kos.tsv",
+        ko_pathway_map = "data/ko_pathway_map.tsv"
+    output:
+        f"{config['output_dir']}/pathway_abundance.tsv"
+    shell:
+        """
+        python scripts/aggregate_ko_pathways.py \
+            --asv_table      {input.asv_table} \
+            --ko_table       {input.ko_table} \
+            --ko_pathway_map {input.ko_pathway_map} \
+            --output         {output}
+        """
+
+# =============================================================================
 # Rule 8: Vsearch species-level taxonomy
 # -----------------------------------------------------------------------------
 # Runs vsearch against the DADA2 reference FASTA at high identity (97% default)
@@ -627,12 +654,26 @@ if METADATA != "none":
 
     rule ko_pca:
         input:
-            asv_table = f"{config['output_dir']}/asv_table.tsv",
-            ko_table  = f"{config['output_dir']}/asv_predicted_kos.tsv",
-            metadata  = METADATA
+            pathway_abundance = f"{config['output_dir']}/pathway_abundance.tsv",
+            metadata          = METADATA
         output:
-            f"{config['output_dir']}/ko/ko_pca.png"
+            png      = f"{config['output_dir']}/ko/ko_pca.png",
+            loadings = f"{config['output_dir']}/ko/ko_pca_loadings.tsv"
         script: "scripts/ko_pca.py"
+
+    rule pathway_diff_abundance:
+        input:
+            pathway_abundance = f"{config['output_dir']}/pathway_abundance.tsv",
+            metadata          = METADATA
+        output:
+            f"{config['output_dir']}/ko/pathway_differential_abundance.tsv"
+        shell:
+            """
+            python scripts/pathway_diff_abundance.py \
+                --pathway_abundance {input.pathway_abundance} \
+                --metadata          {input.metadata} \
+                --output            {output}
+            """
 
 # =============================================================================
 # Krona interactive taxonomy chart

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-ko_pca.py — PCA of weighted KO abundance per sample.
+ko_pca.py — PCA of pathway-level functional abundance per sample.
+
+Runs on pathway_abundance.tsv (named KEGG pathways, from
+aggregate_ko_pathways.py) rather than the raw per-KO table, so the PCA
+loadings this script writes out are directly interpretable
+("Butanoate metabolism" instead of "K00929").
 
 Key improvements over previous version:
   - No colored scatter dots. Groups shown via filled ellipses (95% CI) with
@@ -13,6 +18,8 @@ Key improvements over previous version:
   - Colour-blind-friendly palette (Wong 2011 / Okabe-Ito).
   - Tight layout with no legend clutter — group identity conveyed by ellipse
     colour + in-plot label only.
+  - Writes ko_pca_loadings.tsv: the top pathways driving PC1 and PC2, so the
+    plot's separation is explainable rather than just visible.
 """
 
 import os
@@ -31,63 +38,49 @@ from scipy.stats import chi2
 # ---------------------------------------------------------------------------
 # Snakemake I/O
 # ---------------------------------------------------------------------------
-asv_table_path = snakemake.input["asv_table"]
-ko_table_path  = snakemake.input["ko_table"]
-metadata_path  = snakemake.input["metadata"]
-output_path    = snakemake.output[0]
+pathway_abundance_path = snakemake.input["pathway_abundance"]
+metadata_path          = snakemake.input["metadata"]
+output_path            = snakemake.output["png"]
+loadings_path          = snakemake.output["loadings"]
 
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Load data
 # ---------------------------------------------------------------------------
-asv_table = pd.read_csv(asv_table_path, sep="\t", index_col=0)
-ko_table  = pd.read_csv(ko_table_path,  sep="\t", index_col=0)
-meta      = pd.read_csv(metadata_path,  sep="\t", index_col=0)
-
-# Align ASVs
-common_asvs = asv_table.index.intersection(ko_table.index)
-if len(common_asvs) == 0:
-    raise ValueError(
-        "No ASVs shared between asv_table and ko_table. "
-        "Check that ASV IDs match (e.g. ASV001 in both files)."
-    )
-asv_table = asv_table.loc[common_asvs]
-ko_table  = ko_table.loc[common_asvs]
-
-# Weighted KO abundance per sample: (samples × ASVs) · (ASVs × KOs)
-ko_abundance = asv_table.T.dot(ko_table)
+pathway_abundance = pd.read_csv(pathway_abundance_path, sep="\t", index_col=0)
+meta              = pd.read_csv(metadata_path, sep="\t", index_col=0)
 
 # Align samples
-common_samples = ko_abundance.index.intersection(meta.index)
+common_samples = pathway_abundance.index.intersection(meta.index)
 if len(common_samples) < 2:
     raise ValueError(
-        f"Only {len(common_samples)} sample(s) overlap between KO table and "
-        "metadata — need at least 2 for PCA."
+        f"Only {len(common_samples)} sample(s) overlap between pathway "
+        "abundance and metadata — need at least 2 for PCA."
     )
-ko_abundance = ko_abundance.loc[common_samples]
-meta         = meta.loc[common_samples]
+pathway_abundance = pathway_abundance.loc[common_samples]
+meta              = meta.loc[common_samples]
 
-# Drop all-zero KO columns (uninformative for PCA)
-ko_abundance = ko_abundance.loc[:, (ko_abundance > 0).any(axis=0)]
+# Drop all-zero pathway columns (uninformative for PCA)
+pathway_abundance = pathway_abundance.loc[:, (pathway_abundance > 0).any(axis=0)]
 
 n_samples = len(common_samples)
 
 # ---------------------------------------------------------------------------
 # PCA
 # ---------------------------------------------------------------------------
-n_components = min(2, ko_abundance.shape[1], n_samples)
+n_components = min(2, pathway_abundance.shape[1], n_samples)
 if n_components < 2:
     raise ValueError(
         "Not enough variance dimensions for 2-component PCA. "
-        "Check that ko_abundance has at least 2 non-zero KO columns."
+        "Check that pathway_abundance has at least 2 non-zero pathway columns."
     )
 
 pca   = PCA(n_components=2)
-X_pca = pca.fit_transform(ko_abundance.values)
+X_pca = pca.fit_transform(pathway_abundance.values)
 
 coords = pd.DataFrame(
-    X_pca, index=ko_abundance.index, columns=["PC1", "PC2"]
+    X_pca, index=pathway_abundance.index, columns=["PC1", "PC2"]
 )
 # Attach group column — default to "Group" or first metadata column
 group_col = "Group" if "Group" in meta.columns else meta.columns[0]
@@ -236,7 +229,7 @@ ax.set_ylabel(
     fontsize=10, labelpad=8
 )
 ax.set_title(
-    f"PCA of Weighted KO Abundance  |  {n_samples} samples, {n_groups} groups",
+    f"PCA of Pathway-Level Functional Abundance  |  {n_samples} samples, {n_groups} groups",
     fontsize=11, pad=12, fontweight="bold"
 )
 
@@ -272,7 +265,30 @@ plt.tight_layout(pad=1.5)
 plt.savefig(output_path, dpi=300, bbox_inches="tight")
 plt.close()
 
+# ---------------------------------------------------------------------------
+# Loadings — which pathways actually drive PC1/PC2, so the separation above
+# is explainable rather than just visible.
+# ---------------------------------------------------------------------------
+TOP_N_LOADINGS = 15
+loadings = pd.DataFrame(
+    pca.components_.T, index=pathway_abundance.columns, columns=["PC1", "PC2"]
+)
+
+loading_rows = []
+for pc in ["PC1", "PC2"]:
+    top = loadings[pc].abs().sort_values(ascending=False).head(TOP_N_LOADINGS)
+    for rank, (pathway, abs_val) in enumerate(top.items(), start=1):
+        loading_rows.append({
+            "PC": pc,
+            "rank": rank,
+            "pathway": pathway,
+            "loading": loadings.loc[pathway, pc],
+        })
+
+pd.DataFrame(loading_rows).to_csv(loadings_path, sep="\t", index=False)
+
 print(f"PCA plot saved -> {output_path}")
-print(f"  Samples: {n_samples} | Groups: {n_groups} | KOs used: {ko_abundance.shape[1]}")
+print(f"Loadings saved -> {loadings_path}")
+print(f"  Samples: {n_samples} | Groups: {n_groups} | Pathways used: {pathway_abundance.shape[1]}")
 print(f"  PC1: {pca.explained_variance_ratio_[0]*100:.1f}%  "
       f"PC2: {pca.explained_variance_ratio_[1]*100:.1f}%")

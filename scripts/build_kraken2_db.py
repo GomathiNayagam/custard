@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build Kraken2 database from rpocDB v3 amplicons.
+"""Build Kraken2 database from rpocDB v3.1 amplicons.
 
-Runs during `custard setup` after the main DB tarball is extracted.
+Runs during `custard setup` after the v3.1 sequence files are downloaded.
 Requires: kraken2-build, internet access (for NCBI taxonomy download).
 """
 
@@ -13,14 +13,14 @@ import tempfile
 
 
 def build_kraken2_db(db_dir, meta_tsv=None, threads=4):
-    """Build Kraken2 DB from rpocDB v3 vsearch FASTA.
+    """Build Kraken2 DB from rpocDB v3.1 vsearch FASTA.
 
     Args:
-        db_dir: path to data/db/ where rpocdb_v3_vsearch.fasta lives
+        db_dir: path to data/db/ where rpocdb_v3.1_vsearch.fasta lives
         meta_tsv: optional GTDB metadata TSV for taxid mapping
         threads: CPU threads for kraken2-build
     """
-    vsearch_fasta = os.path.join(db_dir, "rpocdb_v3_vsearch.fasta")
+    vsearch_fasta = os.path.join(db_dir, "rpocdb_v3.1_vsearch.fasta")
     kraken_dir = os.path.join(db_dir, "kraken_amplicon")
 
     if os.path.exists(os.path.join(kraken_dir, "hash.k2d")):

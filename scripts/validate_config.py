@@ -15,6 +15,11 @@ def validate(config):
     errors   = []
     warnings = []
 
+    # `setup` is the rule that downloads/builds the database files below, so
+    # it cannot be required to already have them. Skip existence checks for
+    # paths that `setup` itself is responsible for creating.
+    skip_db_checks = "setup" in sys.argv
+
     # -------------------------------------------------------------------------
     # Required top-level keys
     # -------------------------------------------------------------------------
@@ -36,12 +41,15 @@ def validate(config):
     # -------------------------------------------------------------------------
     path_keys = [
         ("input_dir",   True,  "directory"),
-        ("taxa_db",     False, "file"),
-        ("ko_db_fasta", False, "file"),
-        ("ko_npz",      False, "file"),
-        ("ko_genomes",  False, "file"),
-        ("ko_list",     False, "file"),
     ]
+    if not skip_db_checks:
+        path_keys += [
+            ("taxa_db",     False, "file"),
+            ("ko_db_fasta", False, "file"),
+            ("ko_npz",      False, "file"),
+            ("ko_genomes",  False, "file"),
+            ("ko_list",     False, "file"),
+        ]
     for key, is_dir, kind in path_keys:
         p = config[key]
         if is_dir:
@@ -51,15 +59,17 @@ def validate(config):
             if not os.path.isfile(p):
                 errors.append(f"config['{key}'] {kind} not found: {p}")
 
-    # Kraken DB — check for hash.k2d sentinel of a complete build
-    kraken_db = config["kraken_db"]
-    if not os.path.isdir(kraken_db):
-        errors.append(f"config['kraken_db'] directory not found: {kraken_db}")
-    elif not os.path.exists(os.path.join(kraken_db, "hash.k2d")):
-        errors.append(
-            f"config['kraken_db'] exists but appears incomplete "
-            f"(hash.k2d missing): {kraken_db}"
-        )
+    # Kraken DB — check for hash.k2d sentinel of a complete build.
+    # Not required before `setup` has had a chance to build it.
+    if not skip_db_checks:
+        kraken_db = config["kraken_db"]
+        if not os.path.isdir(kraken_db):
+            errors.append(f"config['kraken_db'] directory not found: {kraken_db}")
+        elif not os.path.exists(os.path.join(kraken_db, "hash.k2d")):
+            errors.append(
+                f"config['kraken_db'] exists but appears incomplete "
+                f"(hash.k2d missing): {kraken_db}"
+            )
 
     # Metadata (only checked when not "none")
     metadata = config.get("metadata", "none")

@@ -151,17 +151,18 @@ else:
         input: _core
 
 # =============================================================================
-# Setup rule — one-time database download from Zenodo
+# Setup rule — one-time database download
 # -----------------------------------------------------------------------------
-# Downloads a single db.tar.gz from Zenodo containing all CUSTARD databases.
-# The tarball is expected to extract to a  db/  subdirectory containing:
+# Two sources:
+#   1. rpocDB v3.1 sequence files (DADA2 toGenus/addSpecies, vsearch, kraken2
+#      amplicons) — downloaded directly from the public rpocdb-v3.1 GitHub
+#      repo, so this always tracks the current released version.
+#   2. CUSTARD-specific KO-inference files (all_genomes_kos.npz/genomes/kos) —
+#      not part of rpocDB itself, downloaded from the Zenodo archive.
 #
-#   db/dada2_formatted_rpoc_amplicon.fasta
-#   db/kraken2_amplicons.fasta
-#   db/all_genomes_kos.npz
-#   db/all_genomes_kos_genomes.txt
-#   db/all_genomes_kos_kos.txt
-#   db/kraken_amplicon/hash.k2d  (and other Kraken2 files)
+# The Kraken2 index is always (re)built locally from the downloaded v3.1
+# kraken2 FASTA — never reused from the Zenodo archive, which may bundle an
+# older prebuilt index.
 #
 # Usage (first-time only):
 #   snakemake --cores 4 setup
@@ -173,11 +174,13 @@ else:
 rule setup:
     output:
         sentinel = "data/db/.setup_complete"
+    threads: config["threads"]
     params:
         zenodo_url = config.get(
             "download_base_url",
             "https://zenodo.org/records/17065095/files/db.tar.gz?download=1"
         ),
+        rpocdb_base = "https://raw.githubusercontent.com/GomathiNayagam/rpocdb-v3.1/master/02-releases/version_3.1",
         db_dir = "data/db",
     shell:
         """
@@ -185,43 +188,56 @@ rule setup:
         mkdir -p {params.db_dir}
 
         echo "╔══ CUSTARD Database Setup ══════════════════════════════════"
-        echo "║  Downloading from Zenodo..."
-        echo "║  URL: {params.zenodo_url}"
+        echo "║  [1/2] KO-inference files (Zenodo)..."
         echo "╚════════════════════════════════════════════════════════════"
-        echo ""
 
         TARBALL="{params.db_dir}/db.tar.gz"
+        wget --progress=bar:force:noscroll -O "$TARBALL" "{params.zenodo_url}"
+        # No wrapping top-level directory in this archive - extract as-is.
+        tar -xzf "$TARBALL" -C "{params.db_dir}/"
+        rm "$TARBALL"
 
-        # Download
-        wget --progress=bar:force:noscroll \
-             -O "$TARBALL" \
-             "{params.zenodo_url}"
+        # Discard anything from the Zenodo archive that is NOT a KO-inference
+        # file - in particular any prebuilt Kraken2 index or old-version
+        # sequence FASTAs it may bundle, so they can never be mistaken for
+        # current v3.1 data.
+        rm -rf "{params.db_dir}/kraken_amplicon"
+        rm -f "{params.db_dir}"/rpocdb_v3_*.fasta "{params.db_dir}"/dada2_formatted_rpoc_amplicon.fasta
+
+        for f in all_genomes_kos.npz all_genomes_kos_genomes.txt all_genomes_kos_kos.txt; do
+            if [ ! -f "{params.db_dir}/$f" ]; then
+                echo "ERROR: $f missing after Zenodo extraction."
+                exit 1
+            fi
+            echo "  ✓ $f"
+        done
 
         echo ""
-        echo "Download complete. Extracting..."
+        echo "╔══ [2/2] rpocDB v3.1 sequence files (GitHub)... ═══════════════"
 
-        # Extract — tarball is expected to produce a db/ subdirectory
-        # Strip leading db/ path component and place files into {params.db_dir}
-        tar -xzf "$TARBALL" \
-            --strip-components=1 \
-            -C "{params.db_dir}/"
+        for pkg in dada2 vsearch kraken2; do
+            wget --progress=bar:force:noscroll -q \
+                 -O "{params.db_dir}/${{pkg}}.zip" \
+                 "{params.rpocdb_base}/${{pkg}}/rpocDB_v3.1_${{pkg}}.fasta.zip"
+            unzip -o -q "{params.db_dir}/${{pkg}}.zip" -d "{params.db_dir}/"
+            rm "{params.db_dir}/${{pkg}}.zip"
+        done
 
-        rm "$TARBALL"
-        echo "Tarball removed."
+        mv "{params.db_dir}/rpocDB_v3.1_toGenus.fasta" "{params.db_dir}/rpocdb_v3.1_dada2_toGenus.fasta"
+        mv "{params.db_dir}/rpocDB_v3.1_addSpecies.fasta" "{params.db_dir}/rpocdb_v3.1_addSpecies.fasta"
+        rm -f "{params.db_dir}/rpocDB_v3.1_toSpecies.fasta"
+        mv "{params.db_dir}/rpocDB_v3.1_vsearch.fasta" "{params.db_dir}/rpocdb_v3.1_vsearch.fasta"
+        mv "{params.db_dir}/rpocDB_v3.1_kraken2.fasta" "{params.db_dir}/kraken2_amplicons.fasta"
 
-        # Validate expected files are present
         MISSING=0
         for f in \
-            rpocdb_v3_dada2_toGenus.fasta \
-            rpocdb_v3_addSpecies.fasta \
-            rpocdb_v3_vsearch.fasta \
-            kraken2_amplicons.fasta \
-            all_genomes_kos.npz \
-            all_genomes_kos_genomes.txt \
-            all_genomes_kos_kos.txt
+            rpocdb_v3.1_dada2_toGenus.fasta \
+            rpocdb_v3.1_addSpecies.fasta \
+            rpocdb_v3.1_vsearch.fasta \
+            kraken2_amplicons.fasta
         do
             if [ ! -f "{params.db_dir}/$f" ]; then
-                echo "  ✗ Missing after extract: $f"
+                echo "  ✗ Missing after download: $f"
                 MISSING=$((MISSING+1))
             else
                 echo "  ✓ $f"
@@ -230,20 +246,15 @@ rule setup:
 
         if [ "$MISSING" -gt 0 ]; then
             echo ""
-            echo "ERROR: $MISSING expected files missing after extraction."
+            echo "ERROR: $MISSING expected files missing after download."
             exit 1
         fi
 
-        # Build Kraken2 database from vsearch FASTA + NCBI taxonomy
-        if [ ! -f "{params.db_dir}/kraken_amplicon/hash.k2d" ]; then
-            echo ""
-            echo "Building Kraken2 database (one-time, requires internet)..."
-            python scripts/build_kraken2_db.py \
-                --db-dir {params.db_dir} \
-                --threads {config[threads]}
-        else
-            echo "  ✓ kraken_amplicon/hash.k2d (Kraken2 DB exists)"
-        fi
+        echo ""
+        echo "Building Kraken2 database (one-time, requires internet)..."
+        python scripts/build_kraken2_db.py \
+            --db-dir {params.db_dir} \
+            --threads {config[threads]}
 
         echo ""
         echo "╔══ Setup complete ══════════════════════════════════════════"

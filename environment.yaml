@@ -43,5 +43,6 @@ dependencies:
   - seqtk
 
   # --- pip packages ---
+  - six  # required by ete3; not pulled in automatically via pip
   - pip:
     - ete3

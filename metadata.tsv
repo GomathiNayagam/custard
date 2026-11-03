@@ -1,4 +1,5 @@
 SampleID	Group
-rpoC_BLK_S16	Blank
-rpoC_LC1_S14	Center
-rpoC_LE1_S15	Edge
+sample1	Treatment
+sample2	Treatment
+sample3	Control
+BLK_1	Blank

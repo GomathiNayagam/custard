@@ -1,147 +1,247 @@
-# CUSTARD: DADA2-based Amplicon Processing Tool
+# CUSTARD
 
-**CUSTARD** is a reproducible pipeline for processing paired-end amplicon sequencing reads using the DADA2 workflow, specifically tailored to assign taxonomy using a custom `rpoC` gene-based reference database. This tool constitutes the first module in a two-stage system, with future provision for functional state prediction based on representative genome annotations.
+**C**ommunity **U**nderstanding via **S**equencing of **T**axonomic **A**mplicons using **R**poC **D**atabase
 
----
-
-custard/
-├── Snakefile
-├── config.yaml
-├── scripts/
-│   ├── run_dada2.R
-│   ├── taxonomy_barplot.py
-│   ├── ko_pca.py
-│   ├── diversity_metrics.py
-│   └── ...
-├── data/
-│   └── fastq/                  # Place your raw FASTQ files here
-├── db/
-│   └── rpoc_dada2_taxonomy.fa  # Custom taxonomy file (for DADA2 mode)
-└── results/
-    ├── asv_table.tsv
-    ├── asv_sequences.fasta
-    ├── asv_kraken2_taxonomy.tsv
-    ├── taxonomy/
-    │   └── taxonomy_barplot.png
-    ├── ko/
-    │   └── ko_pca.png
-    └── diversity/
-        ├── alpha_diversity.tsv
-        ├── beta_diversity.tsv
-        └── rarefaction_curves.png
+CUSTARD profiles bacterial communities from paired-end Illumina reads using the *rpoC* gene. Give it your FASTQ files and a metadata sheet, and it gives you taxonomy, species-level classifications, functional predictions, and interactive visualizations.
 
 ---
 
-🛠️ Installation  
-**System dependencies (Ubuntu)**  
-```bash
-sudo apt update && sudo apt install -y     build-essential     r-base     libxml2-dev     libcurl4-openssl-dev     libssl-dev     libfontconfig1-dev     libfreetype6-dev     libpng-dev     libharfbuzz-dev     libfribidi-dev     libtiff5-dev     libjpeg-dev     zlib1g-dev     libbz2-dev     pkg-config kraken2
-```
+## Why rpoC instead of 16S?
 
-**Conda environment**  
+- **Single-copy gene** — no copy number bias. 16S has 1–15 copies per genome, inflating some taxa by up to 100×.
+- **Better species resolution** — the 478 bp rpoC amplicon carries 3–5× more discriminating mutations than even full-length 16S for clinically important species like *S. aureus* vs *S. epidermidis*, *N. meningitidis* vs *N. gonorrhoeae*, and the *B. cereus*/*anthracis* complex.
+- **Works on standard Illumina** — 2×300 paired-end, same library prep cost as 16S V4.
+
+---
+
+## Quick start
+
+### 1. Install
+
 ```bash
-conda create -n custard snakemake -c bioconda -c conda-forge
+git clone https://github.com/your-username/CUSTARD.git
+cd CUSTARD
+conda env create -f environment.yaml
 conda activate custard
-pip install ete3 scikit-bio
+pip install -e .
 ```
 
-**R dependencies**  
-Launch R and install:  
-```R
-install.packages("tidyverse")
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(c("dada2", "Biostrings"))
-```
-
----
-
-## Installation Help
-Run the following commands to set up the environment:
-
-### Download Database
-Download and unpack the database tar file from Zenodo and move the extracted contents into /data/db:
+### 2. Download databases (first time only)
 
 ```bash
-wget https://zenodo.org/records/17065095/files/db.tar.gz?download=1 -O db.tar.gz
-tar -xzvf db.tar.gz
-
+custard setup
 ```
 
----
+### 3. Run
 
-
-⚙️ **Configuration (`config.yaml`)**  
-```yaml
-input_dir: "data/fastq"
-output_dir: "results"
-taxa_db: "db/rpoc_dada2_taxonomy.fa"
-threads: 8
-method: "kraken2"   # Options: kraken2 (default) or dada2
-metadata: "metadata.tsv"   # Optional, required for intermediate use
-```
-
----
-
-🚀 **Running the Pipeline**  
-
-**Beginner (default, Kraken2 mode)**  
-Place raw paired-end FASTQ files (with `_R1.fastq.gz` and `_R2.fastq.gz` suffixes) in `data/fastq/`, then run:  
 ```bash
-cd custard
-snakemake --cores 8
+custard run --input data/fastq/ --metadata metadata.tsv --threads 8
 ```
-This will run the default Kraken2 workflow.  
-No metadata or custom taxonomy is required.  
 
-**Intermediate (DADA2 + metadata)**  
-For more control and reproducibility, use the DADA2 workflow.  
+That's it. Results appear in `results/`.
 
-Provide a custom taxonomy reference (e.g., `db/rpoc_dada2_taxonomy.fa`).  
+---
 
-Add a metadata file (`metadata.tsv`) with the following format:  
+## What you get
+
+| Output | What it tells you |
+|--------|-------------------|
+| `asv_table_annotated.tsv` | Which bacteria are in each sample and how abundant they are, with taxonomy from multiple methods |
+| `taxonomy/krona.html` | Interactive sunburst chart — click to explore taxonomy hierarchy by sample |
+| `taxonomy/taxonomy_barplot.png` | Side-by-side community composition per sample group |
+| `report.html` | Quality summary — read counts, what was filtered out, and why |
+| `diversity/` | Alpha diversity (richness), beta diversity (PCoA ordination), rarefaction curves |
+| `ko/ko_pca.png` | Functional profile comparison between groups (KEGG pathways) |
+| `asv_predicted_kos.tsv` | Predicted metabolic functions per ASV |
+
+Open `results/taxonomy/krona.html` in your browser for the best overview of your data.
+
+---
+
+## Pipeline overview
+
+```
+FASTQ files
+    |
+    v
+Primer trimming (Cutadapt)
+    |
+    v
+ASV inference (DADA2)
+    |
+    +---> Quality check (read tracking per sample)
+    +---> Discarded reads analysis (what was lost and why)
+    |
+    +---> Taxonomy: DADA2 (genus) + exact species matching
+    +---> Taxonomy: vsearch alignment (species level, 97% identity)
+    +---> Taxonomy: Kraken2 (optional k-mer classifier)
+    |
+    +---> Functional prediction (KEGG orthologs)
+    |
+    +---> Visualizations: Krona sunburst, barplots, PCoA, rarefaction
+    |
+    v
+HTML report + annotated ASV table
+```
+
+---
+
+## Usage
+
+### Basic
+
+```bash
+# Minimal — auto-detects file suffixes, skips diversity plots
+custard run --input my_fastqs/
+
+# With metadata — enables diversity analysis and grouped plots
+custard run --input my_fastqs/ --metadata samples.tsv
+
+# More threads
+custard run --input my_fastqs/ --metadata samples.tsv --threads 16
+
+# Validate without running
+custard run --input my_fastqs/ --dry-run
+```
+
+### Metadata file format
+
+Tab-separated, with a `SampleID` column matching your FASTQ file prefixes:
+
 ```
 SampleID    Group
-Sample1     Control
-Sample2     Treatment
-Sample3     Treatment
+sample1     Treatment
+sample2     Treatment
+sample3     Control
+BLK_1       Blank
 ```
 
-Run the pipeline in DADA2 mode:  
+Sample IDs may contain only letters, digits, `.`, `_`, and `-` (no spaces or other shell metacharacters), since they are used as file names and pipeline arguments. CUSTARD validates this up front and stops with a clear message if an ID is invalid.
+
+Blank/negative controls are processed like any other sample and appear in `asv_table_annotated.tsv` alongside everything else — CUSTARD does not automatically subtract or compensate for ASVs detected in a blank. Review blank samples manually and filter contaminants yourself if needed.
+
+### Using Snakemake directly (advanced)
+
+All `custard run` does is generate a `config.yaml` and call Snakemake. Power users can edit `config.yaml` directly and invoke:
+
 ```bash
-cd custard
-snakemake --cores 4 --config method=dada2 metadata=metadata.tsv
+snakemake --cores 20
 ```
 
 ---
 
-🧾 **Output**  
+## Configuration
 
-All results are saved in `results/`:  
+`config.yaml` is auto-generated by `custard run`, but you can edit it for fine-tuning:
 
-**Shared outputs**  
-- `asv_table.tsv` – ASV abundance table  
-- `asv_sequences.fasta` – Representative ASV sequences  
+```yaml
+# Taxonomy method
+method: "dada2"     # "dada2" (recommended) or "kraken2"
 
-**Kraken2 mode**  
-- `asv_kraken2_taxonomy.tsv` – Taxonomic assignment via Kraken2  
+# DADA2 parameters
+dada2:
+  maxEE_F: 2        # increase to 3 if too many reads are lost
+  maxEE_R: 2
+  pool: false        # set to "pseudo" for low-diversity samples
 
-**DADA2 mode**  
-- `taxa_assignments.tsv` – Taxonomic assignment using custom database  
-- `seqtab.rds` – Sequence table (RDS format)  
-- `taxa.rds` – Raw taxonomy assignments (RDS format)  
+# Vsearch species-level taxonomy
+vsearch_taxonomy:
+  identity: 0.97     # lower to 0.95 for genus-level calls
+  top_n: 5
+
+# KO functional prediction
+ko_inference:
+  top_n_hits: 10
+```
+
+DADA2 truncation lengths are auto-calculated from your read quality. After the first run, check `results/qc_plots.pdf` and adjust `truncLen_F`/`truncLen_R` in config if needed.
 
 ---
 
-🔮 **Next Steps (Planned in Part 2)**  
-- Match ASVs to representative genomes using rpoC hits  
-- Retrieve precomputed EGGNOG annotations from representative genomes  
-- Infer unobserved functional states and generate KO/COG profiles for each sample  
+## Database
+
+CUSTARD uses **rpocDB v3.1** (GTDB r232):
+- 178,199 deduplicated rpoC amplicon sequences — one per unique sequence
+- 23,449 genera, 53,563 named species
+- Two-step classification: genus-level Bayesian (100% → 77% genus) + exact species matching
+- Built from in-silico PCR of 578,676 GTDB representative genomes
+
+The database is downloaded automatically by `custard setup`. It uses ~500 MB on disk.
+
+### Why v3.1 reports fewer species than v3.0
+
+Some genomes share a byte-identical 521 bp rpoC amplicon while carrying
+different GTDB labels — 1,710 sequences in v3.0, worst case one *Collinsella*
+amplicon labelled as 41 different species. v3.0 stored one entry per label.
+Since the entries are identical, any best-hit search scored them equally and
+broke the tie on database order, silently splitting one organism's reads across
+several labels. On the ZymoBIOMICS standard this diverted 5.7–7.4% of every
+library into a phantom *Enterobacter* bin.
+
+v3.1 stores one entry per unique sequence, labelled with the lowest common
+ancestor of the conflicting lineages, so the classifier can see where the
+evidence runs out. *E. coli*'s rpoC amplicon is shared with six other
+Enterobacteriaceae labels and now resolves to family — coarser, and the only
+call 521 bp of rpoC actually supports.
+
+Expect fewer species calls than v3.0 and trust them more. `vsearch_lca_rank`
+and `vsearch_n_tied` in the annotated ASV table tell you which ASVs were capped
+by a tie and at what rank.
 
 ---
 
-📄 **License**  
-This repository is distributed for academic and research use. No warranty is provided.  
+## Primers
 
-✉️ **Contact**  
-For queries or contributions, please contact the pipeline author.  
+| Primer | Sequence | Length |
+|--------|----------|--------|
+| Forward | `MAYGARAARMGNATGYTNCARGA` | 23 bp |
+| Reverse | `GMCATYTGRTCNCCRTCRAA` | 20 bp |
+
+Amplicon: 521 bp with primers, 478 bp insert. Degenerate bases are handled natively.
+
+---
+
+## FAQ
+
+**How long does a typical run take?**
+3–10 minutes for 3–10 samples on a laptop. Most time is spent on DADA2 error learning and taxonomy assignment. Large studies (100+ samples) take 30–60 minutes.
+
+**Can I use this on a cluster?**
+Yes. Use Snakemake's cluster execution:
+```bash
+snakemake --cores 20 --executor slurm --default-resources mem_mb=64000
+```
+
+**Most ASVs are unclassified at species level.**
+This is normal for environmental samples. The species call requires 100% identity to a named genome. Many environmental bacteria don't have named species yet. The vsearch column in the annotated table shows the best available match even at lower identity.
+
+**How do I interpret the Krona chart?**
+Open `results/taxonomy/krona.html` in a web browser. Click on any slice to zoom into that taxonomic group. Use the sample tabs at the top to switch between samples. The size of each slice represents relative abundance.
+
+**Can I use this for 16S data?**
+The pipeline is designed for rpoC, but it is marker-agnostic in principle. You would need to change the primers, databases, and amplicon length in the config. The KO prediction step is rpoC-specific and would not apply.
+
+---
+
+## Citation
+
+If you use CUSTARD in your work, please cite:
+
+> Gomathinayagam S. *et al.* Single copy rpoC amplicon sequencing for high resolution microbiome profiling. *[In preparation].*
+
+Please also cite: [DADA2](https://doi.org/10.1038/nmeth.3869), [Kraken2](https://doi.org/10.1186/s13059-019-1891-0), [vsearch](https://doi.org/10.7717/peerj.2584), [Cutadapt](https://doi.org/10.14806/ej.17.1.200), and [Snakemake](https://doi.org/10.12688/f1000research.29032.2).
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+
+Developed by **Gomathinayagam S.**
+Postdoctoral Researcher, MAGE Lab, University of Wyoming
+
+For bug reports and feature requests, please [open an issue](https://github.com/xxxxx).

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "custard"
+version = "1.0.0"
+description = "rpoC amplicon sequencing pipeline for bacterial community profiling"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Gomathinayagam S.", email = "carthysgn@gmail.com"},
+]
+dependencies = [
+    "click>=8.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+custard = "custard.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["custard*"]

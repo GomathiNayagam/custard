@@ -4,8 +4,10 @@ input_dir: "data/fastq"
 # Output directory (relative to repo root)
 output_dir: "results"
 
-# DADA2 formatted database
-taxa_db: "data/db/dada2_formatted_rpoc_amplicon.fasta"
+# rpocDB v3.1 reference databases
+taxa_db: "data/db/rpocdb_v3.1_dada2_toGenus.fasta"
+addspecies_db: "data/db/rpocdb_v3.1_addSpecies.fasta"
+vsearch_db: "data/db/rpocdb_v3.1_vsearch.fasta"
 
 # Kraken2 database
 kraken_db: "data/db/kraken_amplicon"
@@ -13,19 +15,55 @@ kraken_db: "data/db/kraken_amplicon"
 # Threads
 threads: 20
 
-# Default taxonomy assignment method
-method: "kraken2"
+# Default taxonomy assignment method ("dada2" recommended, or "kraken2")
+method: "dada2"
 
 # KO inference
 ko_db_fasta: "data/db/kraken2_amplicons.fasta"
 ko_npz: "data/db/all_genomes_kos.npz"
 ko_genomes: "data/db/all_genomes_kos_genomes.txt"
 ko_list: "data/db/all_genomes_kos_kos.txt"
-identity_threshold: 0.4
+ko_inference:
+  top_n_hits: 10
 
 # Optional metadata file (set to "none" if not provided)
-metadata: "config/metadata.tsv"
+metadata: "metadata.tsv"
 
 # Paired-end suffixes
 read1_suffix: "_R1.fastq.gz"
 read2_suffix: "_R2.fastq.gz"
+
+# Read-loss sanity check thresholds (% of input reads lost)
+sanity_check:
+  warn_loss_pct: 80
+  fail_loss_pct: 90
+
+identity_threshold: 0.4
+min_coverage: 0.5
+
+# Vsearch species-level taxonomy
+vsearch_taxonomy:
+  identity: 0.97
+  min_coverage: 0.9
+  top_n: 5
+
+# Primer trimming
+cutadapt:
+  primer_f: "MAYGARAARMGNATGYTNCARGA"
+  primer_r: "GMCATYTGRTCNCCRTCRAA"
+  error_rate: 0.1
+  minimum_length: 100
+
+# DADA2 parameters
+dada2:
+  amplicon_len: 521
+  primer_len_f: 23
+  primer_len_r: 20
+  read_length: 300
+  truncLen_F: 260
+  truncLen_R: 240
+  maxEE_F: 2
+  maxEE_R: 2
+  pool: false
+  min_overlap: 20
+  min_boot: 50

@@ -118,9 +118,20 @@ def build_kraken2_db(db_dir, meta_tsv=None, threads=4):
     )
 
     print(f"[kraken2] Building database ({threads} threads)...", flush=True)
+    # kraken2-build's underlying build_db binary uses OpenMP, which reads
+    # OMP_NUM_THREADS from the process environment and refuses to run with
+    # more threads than that value permits - regardless of --threads on the
+    # command line. Some systems (notably HPC/shared servers) export
+    # OMP_NUM_THREADS=1 globally to prevent accidental oversubscription by
+    # unaware tools, which silently breaks this build with "OMP only wants
+    # you to use 1 threads". Override explicitly rather than relying on
+    # whatever the caller's shell happened to export.
+    build_env = os.environ.copy()
+    build_env["OMP_NUM_THREADS"] = str(threads)
+    build_env["OMP_THREAD_LIMIT"] = str(threads)
     result = subprocess.run(
         ["kraken2-build", "--build", "--db", kraken_dir, "--threads", str(threads)],
-        capture_output=True, text=True
+        capture_output=True, text=True, env=build_env
     )
     if result.returncode != 0:
         print(f"[kraken2] Build failed: {result.stderr}", file=sys.stderr)

@@ -20,7 +20,7 @@ CUSTARD profiles bacterial communities from paired-end Illumina reads using the 
 
 ```bash
 git clone https://github.com/GomathiNayagam/custard.git
-cd CUSTARD
+cd custard
 conda env create -f environment.yaml
 conda activate custard
 pip install -e .

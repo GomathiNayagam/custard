@@ -8,9 +8,9 @@ CUSTARD profiles bacterial communities from paired-end Illumina reads using the 
 
 ## Why rpoC instead of 16S?
 
-- **Single-copy gene** — no copy number bias. 16S has 1–15 copies per genome, inflating some taxa by up to 100×.
-- **Better species resolution** — the 478 bp rpoC amplicon carries 3–5× more discriminating mutations than even full-length 16S for clinically important species like *S. aureus* vs *S. epidermidis*, *N. meningitidis* vs *N. gonorrhoeae*, and the *B. cereus*/*anthracis* complex.
-- **Works on standard Illumina** — 2×300 paired-end, same library prep cost as 16S V4.
+- **Single-copy gene** - no copy number bias. 16S has 1-15 copies per genome, inflating some taxa by up to 100×.
+- **Better species resolution** - the 478 bp rpoC amplicon carries 3-5× more discriminating mutations than even full-length 16S for clinically important species like *S. aureus* vs *S. epidermidis*, *N. meningitidis* vs *N. gonorrhoeae*, and the *B. cereus*/*anthracis* complex.
+- **Works on standard Illumina** - 2×300 paired-end, same library prep cost as 16S V4.
 
 ---
 
